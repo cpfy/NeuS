@@ -7,7 +7,7 @@ import subprocess
 
 # $ colmap feature_extractor \
 #    --database_path $DATASET_PATH/database.db \
-#    --image_path $DATASET_PATH/images
+#    --image_path $DATASET_PATH/image   #【Correct】！should be image in given BlendedMVS/thin dataset
 
 # $ colmap exhaustive_matcher \
 #    --database_path $DATASET_PATH/database.db
@@ -16,7 +16,7 @@ import subprocess
 
 # $ colmap mapper \
 #     --database_path $DATASET_PATH/database.db \
-#     --image_path $DATASET_PATH/images \
+#     --image_path $DATASET_PATH/image \
 #     --output_path $DATASET_PATH/sparse
 
 # $ mkdir $DATASET_PATH/dense
@@ -28,7 +28,7 @@ def run_colmap(basedir, match_type):
     feature_extractor_args = [
         'colmap', 'feature_extractor', 
             '--database_path', os.path.join(basedir, 'database.db'), 
-            '--image_path', os.path.join(basedir, 'images'),
+            '--image_path', os.path.join(basedir, 'image'),
             '--ImageReader.single_camera', '1',
             # '--SiftExtraction.use_gpu', '0',
     ]
@@ -52,7 +52,7 @@ def run_colmap(basedir, match_type):
     # mapper_args = [
     #     'colmap', 'mapper', 
     #         '--database_path', os.path.join(basedir, 'database.db'), 
-    #         '--image_path', os.path.join(basedir, 'images'),
+    #         '--image_path', os.path.join(basedir, 'image'),
     #         '--output_path', os.path.join(basedir, 'sparse'),
     #         '--Mapper.num_threads', '16',
     #         '--Mapper.init_min_tri_angle', '4',
@@ -60,11 +60,11 @@ def run_colmap(basedir, match_type):
     mapper_args = [
         'colmap', 'mapper',
             '--database_path', os.path.join(basedir, 'database.db'),
-            '--image_path', os.path.join(basedir, 'images'),
+            '--image_path', os.path.join(basedir, 'image'),
             '--output_path', os.path.join(basedir, 'sparse'), # --export_path changed to --output_path in colmap 3.6
-            '--Mapper.num_threads', '16',
-            '--Mapper.init_min_tri_angle', '4',
-            '--Mapper.multiple_models', '0',
+            #'--Mapper.num_threads', '16',
+            #'--Mapper.init_min_tri_angle', '4',
+            #'--Mapper.multiple_models', '0',
             '--Mapper.extract_colors', '0',
     ]
 
