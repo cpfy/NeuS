@@ -13,6 +13,7 @@ from icecream import ic
 from tqdm import tqdm
 from pyhocon import ConfigFactory
 from models.dataset import Dataset
+from models.cuttedDataset import CuttedDataset
 from models.fields import RenderingNetwork, SDFNetwork, SingleVarianceNetwork, NeRF
 from models.renderer import NeuSRenderer
 
@@ -32,7 +33,19 @@ class Runner:
         self.conf['dataset.data_dir'] = self.conf['dataset.data_dir'].replace('CASE_NAME', case)
         self.base_exp_dir = self.conf['general.base_exp_dir']
         os.makedirs(self.base_exp_dir, exist_ok=True)
-        self.dataset = Dataset(self.conf['dataset'])
+        
+        # self.runningmode = "train"
+        self.runningmode = "val"
+
+        if self.runningmode == "train":
+            self.dataset = Dataset(self.conf['dataset'])
+        elif self.runningmode == "val":
+            # validate_only didn't need much dataset
+            self.dataset = CuttedDataset(self.conf['dataset'])
+        else:
+            print("error")
+            exit(0)
+
         self.iter_step = 0
 
         # Training parameters
@@ -326,8 +339,15 @@ class Runner:
         return img_fine
 
     def validate_mesh(self, world_space=False, resolution=64, threshold=0.0):
+
         bound_min = torch.tensor(self.dataset.object_bbox_min, dtype=torch.float32)
         bound_max = torch.tensor(self.dataset.object_bbox_max, dtype=torch.float32)
+
+        # bmin = np.array([-1.01, -1.01, -1.01])
+        # bmax = np.array([ 1.01,  1.01,  1.01])
+        # bound_min = torch.tensor(bmin, dtype=torch.float32)
+        # bound_max = torch.tensor(bmax, dtype=torch.float32)
+        # scale_mats = 
 
         vertices, triangles =\
             self.renderer.extract_geometry(bound_min, bound_max, resolution=resolution, threshold=threshold)
@@ -391,7 +411,8 @@ if __name__ == '__main__':
     if args.mode == 'train':
         runner.train()
     elif args.mode == 'validate_mesh':
-        runner.validate_mesh(world_space=True, resolution=512, threshold=args.mcube_threshold)
+        # origin:64
+        runner.validate_mesh(world_space=True, resolution=2048, threshold=args.mcube_threshold)
     elif args.mode.startswith('interpolate'):  # Interpolate views given two image indices
         _, img_idx_0, img_idx_1 = args.mode.split('_')
         img_idx_0 = int(img_idx_0)
